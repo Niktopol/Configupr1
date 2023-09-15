@@ -42,7 +42,7 @@ with zipfile.ZipFile(sys.argv[1]) as zipf:
             elif (p[1]  == "~"):
                 dir, prev_dir = zipfile.Path(zipf), dir
             elif (p[1]  == ".."):
-                dir, prev_dir = dir.parent if (dir.parent.name != "") else dir, dir
+                dir, prev_dir = dir.parent if (dir.name != zip_name) else dir, dir
             else:
                 try:
                     dir, prev_dir = move_path(dir, p[1], False), dir
