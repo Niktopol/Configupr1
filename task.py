@@ -5,13 +5,12 @@ def cmd_input(currloc):
     return input(getpass.getuser() +":~"+currloc+"$ ")
 def pwd(currloc):
     print("/home/"+getpass.getuser()+currloc)
-def make_path(path):
-    p = ["/"+path.name]
-    while(path.parent.name != ""):
-        p.append("/" + path.parent.name)
+def make_path(path, fin_name):
+    p = []
+    while(path.name != fin_name):
+        p.append("/" + path.name)
         path = path.parent
     p.reverse()
-    p.pop(0)
     return "".join(p)
 def move_path(path, way, is_file):
     way = way.split("/")
@@ -34,8 +33,9 @@ def move_path(path, way, is_file):
 with zipfile.ZipFile(sys.argv[1]) as zipf:
     dir = zipfile.Path(zipf)
     prev_dir = dir
+    zip_name = dir.name
     while True:
-        p = cmd_input(make_path(dir)).split()
+        p = cmd_input(make_path(dir, zip_name)).split()
         if (p[0] == "cd"):
             if (p[1] == "-"):
                 dir, prev_dir = prev_dir, dir
@@ -49,7 +49,7 @@ with zipfile.ZipFile(sys.argv[1]) as zipf:
                 except BaseException:
                     continue
         elif (p[0] == "pwd"):
-            pwd(make_path(dir))
+            pwd(make_path(dir, zip_name))
         elif (p[0] == "ls"):
             k = dir.iterdir()
             for i in k:
@@ -62,7 +62,7 @@ with zipfile.ZipFile(sys.argv[1]) as zipf:
                     print("cat: " +p[1]+": Is a directory")
                     raise
                 else:
-                    with zipf.open(make_path(file)[1:]) as fl:
+                    with zipf.open(make_path(file, zip_name)[1:]) as fl:
                         lines = [x.decode('utf8') for x in fl.readlines()]
                         for line in lines:
                             print(line, end = "")
