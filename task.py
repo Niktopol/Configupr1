@@ -25,18 +25,19 @@ def move_path(path, way, is_file):
                     break
                 else:
                     print("-bash: cd: "+"/".join(way)+": No such file or directory")
-                    raise
+                    raise BaseException
         if (f):
             print(("cat: " if is_file else "-bash: cd: ") +"/".join(way)+": No such file or directory")
-            raise
+            raise BaseException
     return path
+
 with zipfile.ZipFile(sys.argv[1]) as zipf:
     dir = zipfile.Path(zipf)
     prev_dir = dir
     zip_name = dir.name
     while True:
         p = cmd_input(make_path(dir, zip_name)).split()
-        if (p[0] == "cd"):
+        if (p[0] == "cd" and len(p) == 2):
             if (p[1] == "-"):
                 dir, prev_dir = prev_dir, dir
             elif (p[1]  == "~"):
@@ -48,19 +49,19 @@ with zipfile.ZipFile(sys.argv[1]) as zipf:
                     dir, prev_dir = move_path(dir, p[1], False), dir
                 except BaseException:
                     continue
-        elif (p[0] == "pwd"):
+        elif (p[0] == "pwd" and len(p) == 1):
             pwd(make_path(dir, zip_name))
-        elif (p[0] == "ls"):
+        elif (p[0] == "ls" and len(p) == 1):
             k = dir.iterdir()
             for i in k:
                 print(i.name, end = " ")
             print()
-        elif (p[0] == "cat"):
+        elif (p[0] == "cat" and len(p) == 2):
             try:
                 file = move_path(dir, p[1], True)
                 if (file.is_dir()):
                     print("cat: " +p[1]+": Is a directory")
-                    raise
+                    raise BaseException
                 else:
                     with zipf.open(make_path(file, zip_name)[1:]) as fl:
                         lines = [x.decode('utf8') for x in fl.readlines()]
